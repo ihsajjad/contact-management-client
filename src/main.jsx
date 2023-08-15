@@ -4,7 +4,7 @@ import "./index.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Main from "./layouts/Main";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import MyContacts from "./components/MyContacts";
+import MyContacts from "./pages/myContacts/MyContacts";
 
 const router = createBrowserRouter([
   {
