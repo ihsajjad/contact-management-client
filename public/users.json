@@ -1,0 +1,53 @@
+[
+  {
+    "id": "user1",
+    "username": "user1@example.com",
+    "password": "hashed_password",
+    "contacts": [
+      {
+        "id": "contact1",
+        "name": "John Doe",
+        "phoneNumber": "123-456-7890",
+        "email": "john@example.com",
+        "tags": ["friend"],
+        "permissions": [
+          {
+            "sharedWith": "user2",
+            "read": true,
+            "write": true
+          }
+        ]
+      },
+      {
+        "id": "contact2",
+        "name": "Jane Smith",
+        "phoneNumber": "987-654-3210",
+        "email": "jane@example.com",
+        "tags": ["colleague"],
+        "permissions": []
+      },
+      {
+        "id": "contact3",
+        "name": "Mike Johnson",
+        "phoneNumber": "555-123-4567",
+        "email": "mike@example.com",
+        "tags": ["friend"],
+        "permissions": [
+          {
+            "sharedWith": "user3",
+            "read": true,
+            "write": false
+          }
+        ]
+      },
+      {
+        "id": "contact4",
+        "name": "Emily Brown",
+        "phoneNumber": "777-888-9999",
+        "email": "emily@example.com",
+        "tags": ["family"],
+        "permissions": []
+      }
+    ]
+  }
+]

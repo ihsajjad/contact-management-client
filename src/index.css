@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --bg-color: #1f244d;
+  --second-bg-color: #323946;
+  --text-color: #fff;
+  --main-color: #8bcf17;
+}
+
+body {
+  @apply bg-slate-500 min-h-screen;
+}
