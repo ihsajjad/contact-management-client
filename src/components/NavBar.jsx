@@ -1,6 +1,10 @@
+import { useContext } from "react";
 import { FaBars } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+import { AuthContext } from "../providers/AuthProviders";
 const NavBar = () => {
+  const { user, logOut } = useContext(AuthContext);
+
   const items = (
     <>
       <li>
@@ -55,7 +59,17 @@ const NavBar = () => {
         <ul className="space-x-4 menu-horizontal px-1 font-bold">{items}</ul>
       </div>
       <div className="navbar-end">
-        <a className="btn btn-sm">Log Out</a>
+        {user ? (
+          <>
+            <button onClick={logOut} className="btn btn-sm">
+              Log Out
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/">Login</Link>
+          </>
+        )}
       </div>
     </div>
   );
