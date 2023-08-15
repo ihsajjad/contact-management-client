@@ -1,25 +1,26 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../../providers/AuthProviders";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import SocialLogin from "../../components/SocialLogin";
 
 const Register = () => {
   const [error, setError] = useState("");
+  const { createUser, updateUserProfile } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const { createUser, googleSignIn } = useContext(AuthContext);
-
+  //   destructuring necessery functions from react hook form
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  // handling sign up
+  // creating new user with email and password
   const handleSignUp = (data) => {
     setError("");
-    const { email, password, confirm } = data;
+    const { email, name, password, confirm } = data;
 
-    console.log(data);
     // matching password
     if (password !== confirm) {
       return setError("Password doesn't match");
@@ -31,21 +32,13 @@ const Register = () => {
         const newUser = result.user;
         if (newUser) {
           // updating user's name and profile
+          updateUserProfile(name, "");
+          navigate("/");
         }
       })
       .catch((error) => {
         setError(error.message);
       });
-  };
-
-  // handle google login
-  const handleGoogleLogin = () => {
-    googleSignIn()
-      .then((result) => {
-        const newUser = result.user;
-        console.log(newUser);
-      })
-      .catch((error) => console.log(error.message));
   };
 
   return (
@@ -144,16 +137,9 @@ const Register = () => {
           </div>
         </form>
         <div className="divider">OR</div>
-        <div className="text-center text-xl ">
-          <button onClick={handleGoogleLogin} className=" p-2 rounded-full">
-            <img
-              src="/src/assets/google-icon.png"
-              alt=""
-              className="h-12 w-12"
-            />
-          </button>
-        </div>
+
         {/* Socials sign in including google */}
+        <SocialLogin />
 
         <p className="text-center mb-4">
           Already have an account? please{" "}

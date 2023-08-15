@@ -4,7 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 import { AuthContext } from "../providers/AuthProviders";
 const NavBar = () => {
   const { user, logOut } = useContext(AuthContext);
-
+  console.log(user);
   const items = (
     <>
       <li>
@@ -67,7 +67,7 @@ const NavBar = () => {
           </>
         ) : (
           <>
-            <Link to="/">Login</Link>
+            <Link to="/login">Login</Link>
           </>
         )}
       </div>

@@ -7,11 +7,11 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
+  updateProfile,
 } from "firebase/auth";
 import { app } from "../firebase/firebase.config";
 // import axios from "axios";
 
-// exporting auth context
 export const AuthContext = createContext(null);
 const auth = getAuth(app);
 
@@ -44,22 +44,30 @@ const AuthProvider = ({ children }) => {
     return signOut(auth);
   };
 
+  // updating the user profile
+  const updateUserProfile = (name, photo) => {
+    return updateProfile(auth.currentUser, {
+      displayName: name,
+      photoURL: photo,
+    });
+  };
+
   //   observing the user
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
 
-      //   if (currentUser) {
-      //     axios
-      //       .post("http://localhost:5000/jwt", { user: currentUser.email })
-      //       .then((data) => {
-      //         localStorage.setItem("access-token", data.data.token);
-      //         setLoading(false);
-      //         console.log(data.data.token);
-      //       });
-      //   } else {
-      //     localStorage.removeItem("access-token");
-      //   }
+      /* if (currentUser) {
+        axios
+          .post("http://localhost:5000/jwt", { user: currentUser.email })
+          .then((data) => {
+            localStorage.setItem("access-token", data.data.token);
+            setLoading(false);
+            console.log(data.data.token);
+          });
+      } else {
+        localStorage.removeItem("access-token");
+      } */
     });
 
     return () => {
@@ -73,6 +81,7 @@ const AuthProvider = ({ children }) => {
     createUser,
     logInUser,
     logOut,
+    updateUserProfile,
     googleSignIn,
   };
 
