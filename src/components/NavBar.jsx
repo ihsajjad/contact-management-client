@@ -59,6 +59,7 @@ const NavBar = () => {
         <ul className="space-x-4 menu-horizontal px-1 font-bold">{items}</ul>
       </div>
       <div className="navbar-end">
+        <p>{user?.email}</p>
         {user ? (
           <>
             <button onClick={logOut} className="btn btn-sm">
