@@ -3,6 +3,7 @@ import { AuthContext } from "../../providers/AuthProviders";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import SocialLogin from "../../components/SocialLogin";
+import axios from "axios";
 
 const Register = () => {
   const [error, setError] = useState("");
@@ -33,8 +34,16 @@ const Register = () => {
         if (newUser) {
           // updating user's name and profile
           updateUserProfile(name, "");
-          navigate("/");
+
+          const user = {
+            name,
+            email,
+            contacts: [],
+          };
+
+          axios.post("http://localhost:5000/add-user", { user }).then(() => {});
         }
+        navigate("/");
       })
       .catch((error) => {
         setError(error.message);

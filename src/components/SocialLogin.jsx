@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { AuthContext } from "../providers/AuthProviders";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SocialLogin = () => {
   const { googleSignIn } = useContext(AuthContext);
@@ -10,10 +11,16 @@ const SocialLogin = () => {
   const handleGoogleLogin = () => {
     googleSignIn()
       .then((result) => {
-        const user = result.user;
-        if (user) {
-          navigate("/");
+        const loggedUser = result.user;
+        if (loggedUser) {
+          const user = {
+            name: loggedUser.displayName,
+            email: loggedUser.email,
+            contacts: [],
+          };
+          axios.post("http://localhost:5000/add-user", { user }).then(() => {});
         }
+        navigate("/");
       })
       .catch((error) => console.log(error.message));
   };
