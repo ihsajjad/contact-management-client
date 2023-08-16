@@ -9,7 +9,7 @@ const Register = () => {
   const { createUser, updateUserProfile } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  //   destructuring necessery functions from react hook form
+  //   destructuring necessary functions from react hook form
   const {
     register,
     handleSubmit,

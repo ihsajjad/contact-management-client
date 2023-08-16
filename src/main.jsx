@@ -8,6 +8,7 @@ import MyContacts from "./pages/myContacts/MyContacts";
 import Register from "./pages/register/Register";
 import AuthProvider from "./providers/AuthProviders";
 import Login from "./pages/login/Login";
+import PrivetRouter from "./routes/PrivetRouter";
 
 const router = createBrowserRouter([
   {
@@ -16,7 +17,11 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <MyContacts />,
+        element: (
+          <PrivetRouter>
+            <MyContacts />
+          </PrivetRouter>
+        ),
       },
       {
         path: "/register",
@@ -36,7 +41,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <div className="max-w-screen-xl	mx-auto">
+          <RouterProvider router={router} />
+        </div>
       </QueryClientProvider>
     </AuthProvider>
   </React.StrictMode>
