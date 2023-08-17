@@ -13,7 +13,9 @@ const MyContacts = () => {
     permissions: [],
   });
 
-  // adding new contact
+  /* ======================================== 
+           Adding new contact 
+  ========================================*/
   const handleAddContact = () => {
     // catching the input fields to clean
     const inputs = document.querySelectorAll(
@@ -28,6 +30,25 @@ const MyContacts = () => {
 
           // cleaning the input fields
           inputs.forEach((input) => (input.value = ""));
+        }
+      })
+      .catch((error) => console.log(error.message));
+  };
+
+  /* ======================================== 
+           Deleting contact 
+  ========================================*/
+
+  const handleDeleteContact = (id) => {
+    console.log(id);
+    axios
+      .patch(
+        `http://localhost:5000/delete-contact?email=${userData.email}&id=${id}`
+      )
+      .then((res) => {
+        console.log(res.data);
+        if (res.data?.acknowledged) {
+          refetch();
         }
       })
       .catch((error) => console.log(error.message));
@@ -62,7 +83,10 @@ const MyContacts = () => {
               <td>{contact.phoneNumber}</td>
               <td>{contact.email}</td>
               <th className="inline-flex gap-2">
-                <button className="text-white bg-red-400 hover:bg-red-600 h-8 w-8 rounded-full flex items-center justify-center text-lg">
+                <button
+                  onClick={() => handleDeleteContact(contact._id)}
+                  className="text-white bg-red-400 hover:bg-red-600 h-8 w-8 rounded-full flex items-center justify-center text-lg"
+                >
                   <FaTrashAlt />
                 </button>
                 <button className="text-white bg-orange-400 hover:bg-orange-600 h-8 w-8 rounded-full flex items-center justify-center text-lg">
