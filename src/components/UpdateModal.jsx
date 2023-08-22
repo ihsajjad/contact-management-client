@@ -4,7 +4,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { FaTimes } from "react-icons/fa";
 
-const UpdateModal = ({ contactId, isOpenModal, setIsOpenModal }) => {
+const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
   const { refetch, userData } = useLoadUserData();
   const [contact, setConatct] = useState({
     name: "",
@@ -53,7 +53,7 @@ const UpdateModal = ({ contactId, isOpenModal, setIsOpenModal }) => {
       .then((res) => {
         if (res.data?.modifiedCount) {
           refetch();
-          setIsOpenModal(false);
+          setOpenUpdateModal(false);
         }
       })
       .catch((error) => console.log(error.message));
@@ -66,7 +66,7 @@ const UpdateModal = ({ contactId, isOpenModal, setIsOpenModal }) => {
     <dialog
       id=""
       className={`${
-        isOpenModal ? "fixed flex" : "hidden"
+        openUpdateModal ? "fixed flex" : "hidden"
       } top-0 h-full w-full items-center justify-center bg-gray-400 bg-opacity-20`}
     >
       <form
@@ -103,7 +103,7 @@ const UpdateModal = ({ contactId, isOpenModal, setIsOpenModal }) => {
             Update
           </button>
           <div
-            onClick={() => setIsOpenModal(false)}
+            onClick={() => setOpenUpdateModal(false)}
             className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center px-2 rounded-full bg-red-500 text-white"
           >
             <FaTimes className=" text-2xl font-bold" />

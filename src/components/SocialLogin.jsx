@@ -17,6 +17,8 @@ const SocialLogin = () => {
             name: loggedUser.displayName,
             email: loggedUser.email,
             contacts: [],
+            permittedContacts: [],
+            myShared: [],
           };
           axios.post("http://localhost:5000/add-user", { user }).then(() => {});
         }

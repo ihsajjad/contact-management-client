@@ -39,6 +39,8 @@ const Register = () => {
             name,
             email,
             contacts: [],
+            permittedContacts: [],
+            myShared: [],
           };
 
           axios.post("http://localhost:5000/add-user", { user }).then(() => {});
