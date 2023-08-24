@@ -14,6 +14,7 @@ const MyContacts = () => {
   const [sharedIds, setSharedIds] = useState([]);
   const [sharedContacts, setSharedContacts] = useState([]);
   const [users, setUsers] = useState([]);
+  console.log(userData);
 
   const {
     register,
@@ -121,7 +122,8 @@ const MyContacts = () => {
         sharedContacts,
       }
     );
-    // console.log(res.data);
+
+    console.log(res.data);
   };
 
   return (

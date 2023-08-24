@@ -35,6 +35,20 @@ const NavBar = () => {
           Shared Contacts
         </NavLink>
       </li>
+      <li>
+        <NavLink
+          to="/permitted-contacts"
+          className={({ isActive }) =>
+            ` ${
+              isActive
+                ? "text-[var(--main-color)] border-b-2 border-[var(--main-color)]"
+                : ""
+            }`
+          }
+        >
+          Permitted Contacts
+        </NavLink>
+      </li>
     </>
   );
   return (

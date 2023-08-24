@@ -7,7 +7,7 @@ const useLoadUserData = () => {
   const { user } = useContext(AuthContext);
 
   const { refetch, data: userData = {} } = useQuery({
-    queryKey: ["tasks", user.email],
+    queryKey: ["tasks", user?.email],
     queryFn: async () => {
       const res = await axios.get(
         `http://localhost:5000/contacts/${user?.email}`

@@ -9,6 +9,7 @@ import Register from "./pages/register/Register";
 import AuthProvider from "./providers/AuthProviders";
 import Login from "./pages/login/Login";
 import PrivetRouter from "./routes/PrivetRouter";
+import PermittedContacts from "./pages/permittedContacts/PermittedContacts";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/permitted-contacts",
+        element: <PermittedContacts />,
       },
     ],
   },
