@@ -7,6 +7,7 @@ const useLoadUserData = () => {
   const { user } = useContext(AuthContext);
 
   const { refetch, data: userData = {} } = useQuery({
+    enabled: !!user,
     queryKey: ["tasks", user?.email],
     queryFn: async () => {
       const res = await axios.get(

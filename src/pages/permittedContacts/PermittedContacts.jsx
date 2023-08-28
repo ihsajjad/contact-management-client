@@ -1,9 +1,35 @@
+import { useState } from "react";
 import useLoadUserData from "../../hooks/useLoadUserData";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import PermittedUpdateModal from "../../components/PermittedUpdatedModal";
+import axios from "axios";
 
 const PermittedContacts = () => {
   const { refetch, userData } = useLoadUserData();
-  console.log(userData?.permittedContacts);
+  const [contactId, setContactId] = useState("");
+  const [openUpdateModal, setOpenUpdateModal] = useState(false); // to update contact info
+
+  /* ======================================== 
+           Deleting contact 
+  ========================================*/
+  const handleDeleteContact = (id) => {
+    axios
+      .patch(
+        `http://localhost:5000/delete-parmitted-contact?email=${userData?.email}&id=${id}`
+      )
+      .then((res) => {
+        console.log(res.data);
+        if (res.data?.acknowledged) {
+          refetch();
+        }
+      })
+      .catch((error) => console.log(error.message));
+  };
+
+  const openModal = (id) => {
+    setContactId(id);
+    setOpenUpdateModal(true);
+  };
 
   return (
     <div className="overflow-x-auto md:m-20 bg-slate-300 min-h-screen rounded-lg border border-[var(--main-color)]">
@@ -42,22 +68,28 @@ const PermittedContacts = () => {
                 </td>
                 <th className="inline-flex gap-2">
                   <div
-                    // onClick={() => handleDeleteContact(contact._id)}
-                    className="text-white bg-red-400 hover:bg-red-600 h-8 w-8 rounded-full flex items-center justify-center text-lg"
+                    onClick={() => handleDeleteContact(contact._id)}
+                    className="text-white bg-red-400 hover:bg-red-600 h-8 w-8 rounded-full flex items-center cursor-pointer justify-center text-lg"
                   >
                     <FaTrashAlt />
                   </div>
-                  <div
-                    // onClick={() => openModal(contact._id)}
-                    className="text-white bg-orange-400 hover:bg-orange-600 h-8 w-8 rounded-full flex items-center justify-center text-lg"
+                  <button
+                    disabled={!contact.write}
+                    onClick={() => openModal(contact._id)}
+                    className="text-white bg-orange-400 hover:bg-orange-600 h-8 w-8 rounded-full flex items-center justify-center text-lg cursor-pointer"
                   >
                     <FaEdit />
-                  </div>
+                  </button>
                 </th>
               </tr>
             ))}
         </tbody>
       </table>
+      <PermittedUpdateModal
+        contactId={contactId}
+        openUpdateModal={openUpdateModal}
+        setOpenUpdateModal={setOpenUpdateModal}
+      />
     </div>
   );
 };

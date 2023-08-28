@@ -5,16 +5,17 @@ import { IoShareSocialSharp } from "react-icons/io5";
 import axios from "axios";
 import UpdateModal from "../../components/UpdateModal";
 import { useForm } from "react-hook-form";
+import ViewShared from "../../components/ViewShared";
 // https://www.npmjs.com/package/react-phone-number-input
 const MyContacts = () => {
   const { refetch, userData } = useLoadUserData();
   const [openUpdateModal, setOpenUpdateModal] = useState(false); // to update contact info
   const [openUsersModal, setOpenUsersModal] = useState(false);
+  const [openViewSharedModal, setOpenViewSharedModal] = useState(false);
   const [contactId, setContactId] = useState("");
   const [sharedIds, setSharedIds] = useState([]);
   const [sharedContacts, setSharedContacts] = useState([]);
   const [users, setUsers] = useState([]);
-  console.log(userData);
 
   const {
     register,
@@ -26,10 +27,11 @@ const MyContacts = () => {
   useEffect(() => {
     const loadUsers = async () => {
       const res = await axios.get("http://localhost:5000/all-users");
-      setUsers(res.data);
+      const users = res.data.filter((data) => data.email !== userData.email);
+      setUsers(users);
     };
     loadUsers();
-  }, []);
+  }, [userData.email]);
 
   /* ======================================== 
            Adding new contact 
@@ -74,6 +76,11 @@ const MyContacts = () => {
     setOpenUpdateModal(true);
   };
 
+  const viewShareModal = (id) => {
+    setContactId(id);
+    setOpenViewSharedModal(true);
+  };
+
   const handleSelectForShare = (item) => {
     const shareContact = {
       _id: item._id,
@@ -88,6 +95,11 @@ const MyContacts = () => {
     if (result?.length === 1) {
       const exit = sharedIds.filter((sharedItem) => sharedItem !== item._id);
       setSharedIds(exit);
+
+      // clearing background red color after unchecking
+      const row = document.querySelector(`#contact-${item._id}`);
+      row.style.backgroundColor = "";
+      row.style.color = "";
     } else if (result?.length <= 0) {
       setSharedIds((prev) => [...prev, item._id]);
     }
@@ -114,16 +126,63 @@ const MyContacts = () => {
     }
   };
 
-  const handleShare = async (email) => {
-    // console.log(email);
+  const handleShare = async (user) => {
+    let alreadyShareds = 0;
+
+    sharedContacts.forEach((sharedContact) => {
+      const contact = userData?.contacts?.find(
+        (item) => item._id === sharedContact._id
+      );
+      const exist = contact?.tags?.find((tag) => tag.email === user.email);
+
+      if (exist) {
+        userData.contacts.find((contact) => contact._id === exist._id);
+        alreadyShareds = alreadyShareds + 1;
+
+        // highliting already shared contact with red background
+        const element = document.getElementById(`contact-${exist?._id}`);
+        element.style.backgroundColor = "red";
+        element.style.color = "white";
+      }
+    });
+
+    // returning a warning if there is any alread shared contact
+    if (alreadyShareds > 0) {
+      return alert("Already Shared");
+    }
+
+    console.log("running...");
+
     const res = await axios.patch(
-      `http://localhost:5000/share-contacts/${email}`,
+      `http://localhost:5000/share-contacts/${user?.email}`,
       {
         sharedContacts,
       }
     );
 
-    console.log(res.data);
+    if (res?.data.modifiedCount > 0) {
+      // Removing red background after successfull share
+      const elements = document.querySelectorAll(`.contact`);
+      elements.forEach((element) => {
+        element.style.backgroundColor = "";
+        element.style.color = "";
+      });
+
+      // holding shared info for each contact
+      sharedContacts.forEach(async (item) => {
+        await axios.patch(
+          `http://localhost:5000/set-shared-info/${userData?.email}/${item?._id}`,
+          {
+            name: user.name,
+            email: user.email,
+            write: item.write,
+            _id: item._id,
+          }
+        );
+      });
+
+      refetch();
+    }
   };
 
   return (
@@ -161,7 +220,7 @@ const MyContacts = () => {
           <tbody>
             {userData?.contacts &&
               userData.contacts?.map((contact, i) => (
-                <tr key={i}>
+                <tr key={i} id={`contact-${contact._id}`} className="contact">
                   <th>
                     <label>
                       <input
@@ -175,15 +234,24 @@ const MyContacts = () => {
                   <td>{contact.name}</td>
                   <td>{contact.phoneNumber}</td>
                   <td>{contact.email}</td>
-                  <td>
-                    {sharedIds.includes(contact._id) && (
-                      <div className="flex items-center justify-center gap-2">
+                  <td className="text-left">
+                    {sharedIds.includes(contact._id) ? (
+                      <div className="flex items-center  gap-2">
                         <input
                           type="checkbox"
                           onChange={() => handleWritePermission(contact._id)}
                           className="checkbox"
                         />{" "}
                         <span>Write</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center  gap-2">
+                        <span
+                          onClick={() => viewShareModal(contact._id)}
+                          className="bg-slate-500 text-white p-2 rounded-lg cursor-pointer"
+                        >
+                          View Shared
+                        </span>
                       </div>
                     )}
                   </td>
@@ -246,10 +314,18 @@ const MyContacts = () => {
           </tbody>
         </table>
       </form>
+
+      {/* Contact Update modal */}
       <UpdateModal
         contactId={contactId}
         openUpdateModal={openUpdateModal}
         setOpenUpdateModal={setOpenUpdateModal}
+      />
+
+      <ViewShared
+        contactId={contactId}
+        openViewSharedModal={openViewSharedModal}
+        setOpenViewSharedModal={setOpenViewSharedModal}
       />
 
       {/*  ================================================================ 
@@ -283,7 +359,7 @@ const MyContacts = () => {
                     <th>
                       <button
                         type="submit"
-                        onClick={() => handleShare(user.email)}
+                        onClick={() => handleShare(user)}
                         className="bg-[var(--main-color)] px-2 rounded"
                       >
                         Share

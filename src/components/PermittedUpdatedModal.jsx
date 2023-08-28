@@ -1,21 +1,22 @@
-import React, { useContext } from "react";
+import { useEffect, useState } from "react";
 import useLoadUserData from "../hooks/useLoadUserData";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { FaTimes } from "react-icons/fa";
-import { useQuery } from "@tanstack/react-query";
-import { AuthContext } from "../providers/AuthProviders";
 
-const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
-  const { refetch } = useLoadUserData();
-  const { user } = useContext(AuthContext);
-  // const [contact, setConatct] = useState({
-  //   name: "",
-  //   phoneNumber: "",
-  //   email: "",
-  //   tags: [],
-  //   permissions: [],
-  // });
+const PermittedUpdateModal = ({
+  contactId,
+  openUpdateModal,
+  setOpenUpdateModal,
+}) => {
+  const { refetch, userData } = useLoadUserData();
+  const [contact, setConatct] = useState({
+    name: "",
+    phoneNumber: "",
+    email: "",
+    tags: [],
+    permissions: [],
+  });
   const {
     register,
     handleSubmit,
@@ -23,37 +24,40 @@ const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
     // formState: { errors },
   } = useForm();
 
-  const { data: contact = {} } = useQuery(
-    ["contacts"],
-    () =>
-      axios
-        .get(`http://localhost:5000/get-contact/${user?.email}/${contactId}`)
-        .then((res) => res.data),
-    {
-      enabled: openUpdateModal,
-    }
-  );
+  console.log(contactId);
 
-  console.log(contact);
+  useEffect(() => {
+    const loadData = async () => {
+      const res = await axios.get(
+        `http://localhost:5000/get-permitted-contact/${userData?.email}/${contactId}`
+      );
+
+      refetch();
+      setConatct(res.data);
+    };
+
+    loadData();
+  }, [contactId, userData?.email, refetch]);
 
   const handleUpdateContact = (data) => {
     reset();
-    console.log("handleUpdateContact", data);
 
     const newContact = {
       name: data.name,
       phoneNumber: data.phoneNumber,
       email: data.email,
-      tags: data.tags,
-      permissions: contact.permissions,
+      from: contact.from,
+      write: contact.write,
       _id: contactId,
     };
-    console.log(newContact);
 
     axios
-      .patch(`http://localhost:5000/update-contact/${user?.email}`, {
-        contact: newContact,
-      })
+      .patch(
+        `http://localhost:5000/update-permitted-contact/${userData?.email}`,
+        {
+          contact: newContact,
+        }
+      )
       .then((res) => {
         if (res.data?.modifiedCount) {
           refetch();
@@ -61,9 +65,7 @@ const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
         }
       })
       .catch((error) => console.log(error.message));
-    console.log(contact);
     reset();
-    console.log(data);
   };
 
   return (
@@ -108,7 +110,7 @@ const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
           </button>
           <div
             onClick={() => setOpenUpdateModal(false)}
-            className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center px-2 rounded-full bg-red-500 text-white"
+            className="absolute cursor-pointer -top-2 -right-2 h-6 w-6 flex items-center justify-center px-2 rounded-full bg-red-500 text-white"
           >
             <FaTimes className=" text-2xl font-bold" />
           </div>
@@ -118,5 +120,4 @@ const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
   );
 };
 
-// export default UpdateModal;
-export default React.memo(UpdateModal);
+export default PermittedUpdateModal;
