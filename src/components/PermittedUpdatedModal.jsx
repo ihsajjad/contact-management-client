@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import useLoadUserData from "../hooks/useLoadUserData";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { FaTimes } from "react-icons/fa";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const PermittedUpdateModal = ({
   contactId,
@@ -10,6 +10,7 @@ const PermittedUpdateModal = ({
   setOpenUpdateModal,
 }) => {
   const { refetch, userData } = useLoadUserData();
+  const { axiosSecure } = useAxiosSecure();
   const [contact, setConatct] = useState({
     name: "",
     phoneNumber: "",
@@ -28,8 +29,8 @@ const PermittedUpdateModal = ({
 
   useEffect(() => {
     const loadData = async () => {
-      const res = await axios.get(
-        `http://localhost:5000/get-permitted-contact/${userData?.email}/${contactId}`
+      const res = await axiosSecure.get(
+        `/get-permitted-contact/${userData?.email}/${contactId}`
       );
 
       refetch();
@@ -51,13 +52,10 @@ const PermittedUpdateModal = ({
       _id: contactId,
     };
 
-    axios
-      .patch(
-        `http://localhost:5000/update-permitted-contact/${userData?.email}`,
-        {
-          contact: newContact,
-        }
-      )
+    axiosSecure
+      .patch(`/update-permitted-contact/${userData?.email}`, {
+        contact: newContact,
+      })
       .then((res) => {
         if (res.data?.modifiedCount) {
           refetch();

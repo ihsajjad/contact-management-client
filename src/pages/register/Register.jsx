@@ -35,12 +35,13 @@ const Register = () => {
           // updating user's name and profile
           updateUserProfile(name, "");
 
+          // Storing user's data to the database
           const user = {
             name,
             email,
             contacts: [],
             permittedContacts: [],
-            myShared: [],
+            notifications: [],
           };
 
           axios.post("http://localhost:5000/add-user", { user }).then(() => {});

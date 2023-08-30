@@ -1,21 +1,16 @@
 import React, { useContext } from "react";
 import useLoadUserData from "../hooks/useLoadUserData";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { FaTimes } from "react-icons/fa";
 import { useQuery } from "@tanstack/react-query";
 import { AuthContext } from "../providers/AuthProviders";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
   const { refetch } = useLoadUserData();
   const { user } = useContext(AuthContext);
-  // const [contact, setConatct] = useState({
-  //   name: "",
-  //   phoneNumber: "",
-  //   email: "",
-  //   tags: [],
-  //   permissions: [],
-  // });
+  const { axiosSecure } = useAxiosSecure();
+
   const {
     register,
     handleSubmit,
@@ -26,15 +21,13 @@ const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
   const { data: contact = {} } = useQuery(
     ["contacts"],
     () =>
-      axios
-        .get(`http://localhost:5000/get-contact/${user?.email}/${contactId}`)
+      axiosSecure
+        .get(`/get-contact/${user?.email}/${contactId}`)
         .then((res) => res.data),
     {
       enabled: openUpdateModal,
     }
   );
-
-  console.log(contact);
 
   const handleUpdateContact = (data) => {
     reset();
@@ -50,8 +43,8 @@ const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
     };
     console.log(newContact);
 
-    axios
-      .patch(`http://localhost:5000/update-contact/${user?.email}`, {
+    axiosSecure
+      .patch(`/update-contact/${user?.email}`, {
         contact: newContact,
       })
       .then((res) => {

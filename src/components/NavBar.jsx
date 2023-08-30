@@ -1,11 +1,30 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaBars } from "react-icons/fa";
 import { Link, NavLink } from "react-router-dom";
 import { AuthContext } from "../providers/AuthProviders";
 import { IoNotifications } from "react-icons/io5";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 const NavBar = () => {
   const { user, logOut } = useContext(AuthContext);
-  const [openNotifications, setOpenNotification] = useState(true);
+  const [openNotifications, setOpenNotification] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const { axiosSecure } = useAxiosSecure();
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const res = await axiosSecure.get(`/all-notifications/${user?.email}`);
+      setNotifications(res.data.notifications);
+      const unRead = res.data?.notifications?.filter(
+        (item) => item.read === false
+      );
+      setUnreadNotifications(unRead?.length);
+    };
+
+    fetchNotifications();
+  }, [user]);
+
+  console.log(unreadNotifications);
 
   const items = (
     <>
@@ -56,6 +75,11 @@ const NavBar = () => {
 
   const handleNotifications = () => {
     setOpenNotification(!openNotifications);
+
+    if (unreadNotifications > 0) {
+      axiosSecure.patch(`/update-notification-status/${user?.email}`);
+      setUnreadNotifications(0);
+    }
   };
   return (
     <div className="navbar bg-slate-700 text-white md:px-10">
@@ -85,19 +109,30 @@ const NavBar = () => {
             <div className={`relative mr-8`}>
               <button onClick={handleNotifications} className="relative">
                 <IoNotifications className="text-3xl " />
-                <div className="absolute -top-2 -right-6 font-bold text-[var(--main-color)]">
-                  +99
-                </div>
+                {unreadNotifications > 0 && (
+                  <span className="absolute -top-2 -right-4 font-bold text-[var(--main-color)]">
+                    +{unreadNotifications}
+                  </span>
+                )}
               </button>
               {/* Notifications Modal */}
               <div
                 className={` ${
                   openNotifications ? "absolute" : "hidden"
-                }  p-4 rounded-lg top-12 -left-10 bg-slate-500 border-2 border-[var(--main-color)] shadow-lg shadow-black`}
+                }  p-4 rounded-lg top-12 -right-2/4 bg-slate-500 border-2 border-[var(--main-color)] shadow-lg shadow-black z-10 w-60`}
               >
-                <h3 className="text-xl font-semibold border-b-4 border-[var(--main-color)]">
+                <h3 className="text-xl font-semibold border-b-4 border-[var(--main-color)] mb-2 text-center">
                   Notifications
                 </h3>
+                {notifications?.map((notification, i) => (
+                  <div key={i} className="border-b pb-1">
+                    <p>
+                      {notification.message +
+                        " from " +
+                        notification.senderName}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
             <button onClick={logOut} className="btn btn-sm">

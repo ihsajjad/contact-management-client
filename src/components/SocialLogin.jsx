@@ -1,11 +1,12 @@
 import { useContext } from "react";
 import { AuthContext } from "../providers/AuthProviders";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const SocialLogin = () => {
   const { googleSignIn } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { axiosSecure } = useAxiosSecure();
 
   // handle google login
   const handleGoogleLogin = () => {
@@ -18,9 +19,9 @@ const SocialLogin = () => {
             email: loggedUser.email,
             contacts: [],
             permittedContacts: [],
-            myShared: [],
+            notifications: [],
           };
-          axios.post("http://localhost:5000/add-user", { user }).then(() => {});
+          axiosSecure.post("/add-user", { user }).then(() => {});
         }
         navigate("/");
       })

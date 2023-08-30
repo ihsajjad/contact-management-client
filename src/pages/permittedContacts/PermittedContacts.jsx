@@ -2,23 +2,21 @@ import { useState } from "react";
 import useLoadUserData from "../../hooks/useLoadUserData";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import PermittedUpdateModal from "../../components/PermittedUpdatedModal";
-import axios from "axios";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const PermittedContacts = () => {
   const { refetch, userData } = useLoadUserData();
   const [contactId, setContactId] = useState("");
   const [openUpdateModal, setOpenUpdateModal] = useState(false); // to update contact info
+  const { axiosSecure } = useAxiosSecure();
 
   /* ======================================== 
            Deleting contact 
   ========================================*/
   const handleDeleteContact = (id) => {
-    axios
-      .patch(
-        `http://localhost:5000/delete-parmitted-contact?email=${userData?.email}&id=${id}`
-      )
+    axiosSecure
+      .patch(`/delete-parmitted-contact?email=${userData?.email}&id=${id}`)
       .then((res) => {
-        console.log(res.data);
         if (res.data?.acknowledged) {
           refetch();
         }

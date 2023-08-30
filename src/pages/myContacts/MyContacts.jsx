@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import useLoadUserData from "../../hooks/useLoadUserData";
 import { FaEdit, FaTimes, FaTrashAlt } from "react-icons/fa";
 import { IoShareSocialSharp } from "react-icons/io5";
-import axios from "axios";
 import UpdateModal from "../../components/UpdateModal";
 import { useForm } from "react-hook-form";
 import ViewShared from "../../components/ViewShared";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 // https://www.npmjs.com/package/react-phone-number-input
 const MyContacts = () => {
   const { refetch, userData } = useLoadUserData();
@@ -23,10 +23,11 @@ const MyContacts = () => {
     reset,
     // formState: { errors },
   } = useForm();
+  const { axiosSecure } = useAxiosSecure();
 
   useEffect(() => {
     const loadUsers = async () => {
-      const res = await axios.get("http://localhost:5000/all-users");
+      const res = await axiosSecure.get("/all-users");
       const users = res.data.filter((data) => data.email !== userData.email);
       setUsers(users);
     };
@@ -39,8 +40,10 @@ const MyContacts = () => {
   const handleAddContact = (data) => {
     const contact = { ...data, tags: [], permissions: [] };
 
-    axios
-      .patch(`http://localhost:5000/add-contact/${userData.email}`, { contact })
+    axiosSecure
+      .patch(`/add-contact/${userData?.email}`, {
+        contact,
+      })
       .then((res) => {
         if (res.data?.acknowledged) {
           refetch();
@@ -54,10 +57,8 @@ const MyContacts = () => {
            Deleting contact 
   ========================================*/
   const handleDeleteContact = (id) => {
-    axios
-      .patch(
-        `http://localhost:5000/delete-contact?email=${userData.email}&id=${id}`
-      )
+    axiosSecure
+      .patch(`/delete-contact?email=${userData.email}&id=${id}`)
       .then((res) => {
         console.log(res.data);
         if (res.data?.acknowledged) {
@@ -151,14 +152,9 @@ const MyContacts = () => {
       return alert("Already Shared");
     }
 
-    console.log("running...");
-
-    const res = await axios.patch(
-      `http://localhost:5000/share-contacts/${user?.email}`,
-      {
-        sharedContacts,
-      }
-    );
+    const res = await axiosSecure.patch(`/share-contacts/${user?.email}`, {
+      sharedContacts,
+    });
 
     if (res?.data.modifiedCount > 0) {
       // Removing red background after successfull share
@@ -170,8 +166,8 @@ const MyContacts = () => {
 
       // holding shared info for each contact
       sharedContacts.forEach(async (item) => {
-        await axios.patch(
-          `http://localhost:5000/set-shared-info/${userData?.email}/${item?._id}`,
+        await axiosSecure.patch(
+          `/set-shared-info/${userData?.email}/${item?._id}`,
           {
             name: user.name,
             email: user.email,
@@ -179,6 +175,13 @@ const MyContacts = () => {
             _id: item._id,
           }
         );
+      });
+
+      // sending notification
+      axiosSecure.patch(`/send-notification/${user?.email}`, {
+        senderName: userData.name,
+        message: `You got new contacts`,
+        read: false,
       });
 
       refetch();

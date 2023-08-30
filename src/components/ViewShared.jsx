@@ -1,9 +1,8 @@
 import React, { useContext, useState } from "react";
 import { FaEdit, FaTimes, FaTrashAlt } from "react-icons/fa";
-// import useLoadTags from "../hooks/useLoadTags";
-import axios from "axios";
 import { AuthContext } from "../providers/AuthProviders";
 import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const ViewShared = ({
   contactId,
@@ -12,12 +11,12 @@ const ViewShared = ({
 }) => {
   const { user } = useContext(AuthContext);
   const [updatedContact, setUpdatedContact] = useState({});
-
+  const { axiosSecure } = useAxiosSecure();
   const { refetch, data: tags = [] } = useQuery(
     ["tags"],
     () =>
-      axios
-        .get(`http://localhost:5000/get-contact/${user?.email}/${contactId}`)
+      axiosSecure
+        .get(`/get-contact/${user?.email}/${contactId}`)
         .then((res) => res?.data?.tags),
     {
       enabled: openViewSharedModal,
@@ -28,18 +27,14 @@ const ViewShared = ({
     console.log(item);
 
     // Deleting contact from permitted user
-    axios
-      .patch(
-        `http://localhost:5000/delete-parmitted-contact?email=${item?.email}&id=${item?._id}`
-      )
+    axiosSecure
+      .patch(`/delete-parmitted-contact?email=${item?.email}&id=${item?._id}`)
       .then((res) => {
         console.log(res.data);
         if (res.data?.matchedCount > 0) {
           // Deleting shared info form individual contact's tags info
-          axios
-            .patch(
-              `http://localhost:5000/delete-shared-info/${user?.email}/${item?._id}`
-            )
+          axiosSecure
+            .patch(`/delete-shared-info/${user?.email}/${item?._id}`)
             .then((res) => {
               console.log(res.data);
               if (res.data?.acknowledged) {
@@ -54,17 +49,17 @@ const ViewShared = ({
 
   const handleEditPermission = (item) => {
     console.log(updatedContact);
-    axios
-      .patch(`http://localhost:5000/update-permission/${item?.email}`, {
+    axiosSecure
+      .patch(`/update-permission/${item?.email}`, {
         contact: updatedContact,
       })
       .then((res) => {
         if (res.data?.modifiedCount) {
           console.log("or kiya ho gaya");
           refetch();
-          axios
+          axiosSecure
             .patch(
-              `http://localhost:5000/updating-permissin-shared-info/${user?.email}/${item?._id}`,
+              `/updating-permissin-shared-info/${user?.email}/${item?._id}`,
               {
                 info: updatedContact,
               }
@@ -152,4 +147,3 @@ const ViewShared = ({
 };
 
 export default React.memo(ViewShared);
-// export default ViewShared;
