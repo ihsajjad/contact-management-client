@@ -21,10 +21,10 @@ const NavBar = () => {
       setUnreadNotifications(unRead?.length);
     };
 
-    fetchNotifications();
+    if (user) {
+      fetchNotifications();
+    }
   }, [user]);
-
-  console.log(unreadNotifications);
 
   const items = (
     <>
@@ -40,20 +40,6 @@ const NavBar = () => {
           }
         >
           My Contact
-        </NavLink>
-      </li>
-      <li>
-        <NavLink
-          to="/s"
-          className={({ isActive }) =>
-            ` ${
-              isActive
-                ? "text-[var(--main-color)] border-b-2 border-[var(--main-color)]"
-                : ""
-            }`
-          }
-        >
-          Shared Contacts
         </NavLink>
       </li>
       <li>
@@ -90,23 +76,27 @@ const NavBar = () => {
           </label>
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow  shadow-black bg-slate-500 rounded-box w-52 "
           >
-            {items}
+            {user && items}
           </ul>
         </div>
-        <a className="normal-case text-xl text-[var(--main-color)] font-bold">
+        <a className="normal-case text-xl text-[var(--main-color)] font-bold md:block hidden">
           ContactManagement
+        </a>
+        <a className="normal-case text-xl text-[var(--main-color)] font-bold md:hidden block">
+          CM
         </a>
       </div>
       <div className="navbar-center hidden lg:flex">
-        <ul className="space-x-4 menu-horizontal px-1 font-bold">{items}</ul>
+        <ul className="space-x-4 menu-horizontal px-1 font-bold">
+          {user && items}
+        </ul>
       </div>
       <div className="navbar-end relative">
-        <p>{user?.email}</p>
         {user ? (
           <>
-            <div className={`relative mr-8`}>
+            <div className={`relative md:mr-8 mr-4`}>
               <button onClick={handleNotifications} className="relative">
                 <IoNotifications className="text-3xl " />
                 {unreadNotifications > 0 && (
@@ -119,7 +109,7 @@ const NavBar = () => {
               <div
                 className={` ${
                   openNotifications ? "absolute" : "hidden"
-                }  p-4 rounded-lg top-12 -right-2/4 bg-slate-500 border-2 border-[var(--main-color)] shadow-lg shadow-black z-10 w-60`}
+                }  p-4 rounded-lg top-12 -right-2/4 bg-slate-500 border-2 border-[var(--main-color)] shadow-lg shadow-black z-10 w-72 h-60 overflow-y-scroll`}
               >
                 <h3 className="text-xl font-semibold border-b-4 border-[var(--main-color)] mb-2 text-center">
                   Notifications
@@ -135,7 +125,7 @@ const NavBar = () => {
                 ))}
               </div>
             </div>
-            <button onClick={logOut} className="btn btn-sm">
+            <button onClick={logOut} className="btn md:btn-sm btn-xs">
               Log Out
             </button>
           </>

@@ -6,6 +6,8 @@ import UpdateModal from "../../components/UpdateModal";
 import { useForm } from "react-hook-form";
 import ViewShared from "../../components/ViewShared";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { SingleToast, WarningToast } from "../../utils/modals";
+import Swal from "sweetalert2";
 // https://www.npmjs.com/package/react-phone-number-input
 const MyContacts = () => {
   const { refetch, userData } = useLoadUserData();
@@ -46,6 +48,7 @@ const MyContacts = () => {
       })
       .then((res) => {
         if (res.data?.acknowledged) {
+          SingleToast("Added New Contact");
           refetch();
           reset();
         }
@@ -57,21 +60,32 @@ const MyContacts = () => {
            Deleting contact 
   ========================================*/
   const handleDeleteContact = (id) => {
-    axiosSecure
-      .patch(`/delete-contact?email=${userData.email}&id=${id}`)
-      .then((res) => {
-        console.log(res.data);
-        if (res.data?.acknowledged) {
-          refetch();
-        }
-      })
-      .catch((error) => console.log(error.message));
+    // asking before deleting contact
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // deleting contact after confirm
+        axiosSecure
+          .patch(`/delete-contact?email=${userData.email}&id=${id}`)
+          .then((res) => {
+            if (res.data?.acknowledged) {
+              refetch();
+            }
+          })
+          .catch((error) => console.log(error.message));
+        Swal.fire("Deleted!", "Your contact has been deleted.", "success");
+      }
+    });
   };
 
-  /* ======================================== 
-           Updating contact 
-  ========================================*/
-
+  // opening update modal
   const openModal = (id) => {
     setContactId(id);
     setOpenUpdateModal(true);
@@ -82,7 +96,11 @@ const MyContacts = () => {
     setOpenViewSharedModal(true);
   };
 
+  /* ======================================== 
+           selecting contacts to share 
+  ========================================*/
   const handleSelectForShare = (item) => {
+    // re-creating the contact with extra info to share
     const shareContact = {
       _id: item._id,
       name: item.name,
@@ -92,6 +110,7 @@ const MyContacts = () => {
       write: false,
     };
 
+    // taking and removing shared contact's id depending on check and uncheck
     const result = sharedIds.filter((sharedItem) => sharedItem === item._id);
     if (result?.length === 1) {
       const exit = sharedIds.filter((sharedItem) => sharedItem !== item._id);
@@ -118,6 +137,7 @@ const MyContacts = () => {
     }
   };
 
+  // setting default permission
   const handleWritePermission = (id) => {
     const contact = sharedContacts.find((item) => item._id === id);
     if (contact.write) {
@@ -127,9 +147,13 @@ const MyContacts = () => {
     }
   };
 
+  /* ======================================== 
+           Shareing contacts with other users 
+  ========================================*/
   const handleShare = async (user) => {
     let alreadyShareds = 0;
 
+    // checking already shared or not
     sharedContacts.forEach((sharedContact) => {
       const contact = userData?.contacts?.find(
         (item) => item._id === sharedContact._id
@@ -142,14 +166,14 @@ const MyContacts = () => {
 
         // highliting already shared contact with red background
         const element = document.getElementById(`contact-${exist?._id}`);
-        element.style.backgroundColor = "red";
+        element.style.backgroundColor = "#ff6d6d";
         element.style.color = "white";
       }
     });
 
-    // returning a warning if there is any alread shared contact
+    // returning a warning if there is any already shared contact
     if (alreadyShareds > 0) {
-      return alert("Already Shared");
+      return WarningToast("Uncheck already shared contacts with this user");
     }
 
     const res = await axiosSecure.patch(`/share-contacts/${user?.email}`, {
@@ -157,6 +181,8 @@ const MyContacts = () => {
     });
 
     if (res?.data.modifiedCount > 0) {
+      SingleToast("Contacts has been shared");
+
       // Removing red background after successfull share
       const elements = document.querySelectorAll(`.contact`);
       elements.forEach((element) => {
@@ -189,16 +215,21 @@ const MyContacts = () => {
   };
 
   return (
-    <div className="overflow-x-auto md:m-20 bg-slate-300 min-h-screen rounded-lg border border-[var(--main-color)]">
+    <div className="overflow-x-auto md:m-20 m-2 bg-slate-300 min-h-screen rounded-lg border border-[var(--main-color)]">
       <form onSubmit={handleSubmit(handleAddContact)}>
         <table className="table rounded-lg md:mb-20">
           {/* head */}
           <thead className="bg-slate-800 text-[var(--main-color)] font-bold text-xl rounded-lg">
             <tr>
               <th>
-                <label>
-                  <input type="checkbox" className="checkbox" />
-                </label>
+                {sharedIds.length > 0 && (
+                  <span
+                    onClick={() => setOpenUsersModal(true)}
+                    className="custom-btn-outline text-2xl cursor-pointer"
+                  >
+                    <IoShareSocialSharp />
+                  </span>
+                )}
               </th>
               <th>Name</th>
               <th>Phone Number</th>
@@ -207,14 +238,6 @@ const MyContacts = () => {
               <th>
                 <div className="flex items-center justify-center gap-2">
                   <span>Actions</span>
-                  {sharedIds.length > 0 && (
-                    <span
-                      onClick={() => setOpenUsersModal(true)}
-                      className="custom-btn-outline"
-                    >
-                      <IoShareSocialSharp />
-                    </span>
-                  )}
                 </div>
               </th>
             </tr>
@@ -224,8 +247,8 @@ const MyContacts = () => {
             {userData?.contacts &&
               userData.contacts?.map((contact, i) => (
                 <tr key={i} id={`contact-${contact._id}`} className="contact">
-                  <th>
-                    <label>
+                  <th className="">
+                    <label className="lg:tooltip" data-tip="Select">
                       <input
                         type="checkbox"
                         className="checkbox"
@@ -251,7 +274,7 @@ const MyContacts = () => {
                       <div className="flex items-center  gap-2">
                         <span
                           onClick={() => viewShareModal(contact._id)}
-                          className="bg-slate-500 text-white p-2 rounded-lg cursor-pointer"
+                          className="bg-slate-500 text-white py-1 px-2 rounded-lg cursor-pointer text-sm"
                         >
                           View Shared
                         </span>
@@ -325,6 +348,7 @@ const MyContacts = () => {
         setOpenUpdateModal={setOpenUpdateModal}
       />
 
+      {/* view shared of individual contact */}
       <ViewShared
         contactId={contactId}
         openViewSharedModal={openViewSharedModal}

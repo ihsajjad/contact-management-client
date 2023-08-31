@@ -3,13 +3,13 @@ import { AuthContext } from "../../providers/AuthProviders";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import SocialLogin from "../../components/SocialLogin";
-import axios from "axios";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const Register = () => {
   const [error, setError] = useState("");
   const { createUser, updateUserProfile } = useContext(AuthContext);
   const navigate = useNavigate();
-
+  const { axiosSecure } = useAxiosSecure();
   //   destructuring necessary functions from react hook form
   const {
     register,
@@ -44,7 +44,7 @@ const Register = () => {
             notifications: [],
           };
 
-          axios.post("http://localhost:5000/add-user", { user }).then(() => {});
+          axiosSecure.post("/add-user", { user }).then(() => {});
         }
         navigate("/");
       })
@@ -54,7 +54,7 @@ const Register = () => {
   };
 
   return (
-    <div className="hero min-h-screen md:py-12 p-5">
+    <div className="hero min-h-screen md:py-12 p-2">
       <div className="card md:w-1/3 w-full shadow-2xl bg-base-100 border-[var(--main-color)] border-2">
         <h2 className="text-3xl font-bold text-center mt-8">
           Please Register!

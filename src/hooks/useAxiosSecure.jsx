@@ -9,7 +9,7 @@ const useAxiosSecure = () => {
   const [loadingAxios, setLoadingAxios] = useState(false);
 
   const axiosSecure = axios.create({
-    baseURL: "http://localhost:5000",
+    baseURL: "https://contact-management-server-ihsajjad.vercel.app",
   });
 
   useEffect(() => {

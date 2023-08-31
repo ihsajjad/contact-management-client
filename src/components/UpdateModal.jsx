@@ -5,6 +5,7 @@ import { FaTimes } from "react-icons/fa";
 import { useQuery } from "@tanstack/react-query";
 import { AuthContext } from "../providers/AuthProviders";
 import useAxiosSecure from "../hooks/useAxiosSecure";
+import { SingleToast } from "../utils/modals";
 
 const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
   const { refetch } = useLoadUserData();
@@ -31,7 +32,6 @@ const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
 
   const handleUpdateContact = (data) => {
     reset();
-    console.log("handleUpdateContact", data);
 
     const newContact = {
       name: data.name,
@@ -41,7 +41,6 @@ const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
       permissions: contact.permissions,
       _id: contactId,
     };
-    console.log(newContact);
 
     axiosSecure
       .patch(`/update-contact/${user?.email}`, {
@@ -49,14 +48,13 @@ const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
       })
       .then((res) => {
         if (res.data?.modifiedCount) {
+          SingleToast("Contact has been updated");
           refetch();
           setOpenUpdateModal(false);
         }
       })
       .catch((error) => console.log(error.message));
-    console.log(contact);
     reset();
-    console.log(data);
   };
 
   return (
@@ -71,7 +69,7 @@ const UpdateModal = ({ contactId, openUpdateModal, setOpenUpdateModal }) => {
         method="dialog"
         className=" w-fit h-fit max-w-5xl bg-slate-700 flex items-center justify-center p-3 rounded-lg relative"
       >
-        <div className="flex md:flex-row flex-col md:gap-5 justify-between">
+        <div className="flex md:flex-row flex-col md:gap-5 gap-2 justify-between">
           <input
             type="text"
             name="name"

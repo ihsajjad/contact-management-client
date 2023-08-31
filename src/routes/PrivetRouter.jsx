@@ -6,7 +6,14 @@ const PrivetRouter = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
 
   if (loading) {
-    return <h3>Loading...</h3>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <button className="btn bg-[var(--main-color)] text-white">
+          <span className="loading loading-spinner"></span>
+          loading..
+        </button>
+      </div>
+    );
   }
 
   if (user) {

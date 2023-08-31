@@ -31,7 +31,11 @@ const SocialLogin = () => {
   return (
     <div className="text-center text-xl ">
       <button onClick={handleGoogleLogin} className=" p-2 rounded-full">
-        <img src="/src/assets/google-icon.png" alt="" className="h-12 w-12" />
+        <img
+          src="https://i.postimg.cc/pdB7XJ3q/google.png"
+          alt=""
+          className="h-12 w-12"
+        />
       </button>
     </div>
   );

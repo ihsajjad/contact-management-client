@@ -6,12 +6,15 @@ import useAxiosSecure from "./useAxiosSecure";
 const useLoadUserData = () => {
   const { user } = useContext(AuthContext);
   const { axiosSecure } = useAxiosSecure();
+
   const { refetch, data: userData = {} } = useQuery({
-    enabled: !!user,
+    enabled: !!user.email,
     queryKey: ["tasks", user?.email],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/contacts/${user?.email}`);
-      return res.data;
+      if (user) {
+        const res = await axiosSecure.get(`/contacts/${user?.email}`);
+        return res.data;
+      }
     },
   });
 

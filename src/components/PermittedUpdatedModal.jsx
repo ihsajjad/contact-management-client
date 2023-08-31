@@ -25,8 +25,6 @@ const PermittedUpdateModal = ({
     // formState: { errors },
   } = useForm();
 
-  console.log(contactId);
-
   useEffect(() => {
     const loadData = async () => {
       const res = await axiosSecure.get(
@@ -78,7 +76,7 @@ const PermittedUpdateModal = ({
         method="dialog"
         className=" w-fit h-fit max-w-5xl bg-slate-700 flex items-center justify-center p-3 rounded-lg relative"
       >
-        <div className="flex md:flex-row flex-col md:gap-5 justify-between">
+        <div className="flex md:flex-row flex-col md:gap-5 gap-2 justify-between">
           <input
             type="text"
             name="name"

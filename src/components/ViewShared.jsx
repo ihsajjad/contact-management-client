@@ -1,8 +1,9 @@
 import React, { useContext, useState } from "react";
-import { FaEdit, FaTimes, FaTrashAlt } from "react-icons/fa";
+import { FaSave, FaTimes, FaTrashAlt } from "react-icons/fa";
 import { AuthContext } from "../providers/AuthProviders";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../hooks/useAxiosSecure";
+import { SingleToast } from "../utils/modals";
 
 const ViewShared = ({
   contactId,
@@ -24,19 +25,15 @@ const ViewShared = ({
   );
 
   const handleDeleteShared = (item) => {
-    console.log(item);
-
     // Deleting contact from permitted user
     axiosSecure
       .patch(`/delete-parmitted-contact?email=${item?.email}&id=${item?._id}`)
       .then((res) => {
-        console.log(res.data);
         if (res.data?.matchedCount > 0) {
           // Deleting shared info form individual contact's tags info
           axiosSecure
             .patch(`/delete-shared-info/${user?.email}/${item?._id}`)
             .then((res) => {
-              console.log(res.data);
               if (res.data?.acknowledged) {
                 refetch();
               }
@@ -48,14 +45,13 @@ const ViewShared = ({
   };
 
   const handleEditPermission = (item) => {
-    console.log(updatedContact);
     axiosSecure
       .patch(`/update-permission/${item?.email}`, {
         contact: updatedContact,
       })
       .then((res) => {
         if (res.data?.modifiedCount) {
-          console.log("or kiya ho gaya");
+          SingleToast("Permission has been updated");
           refetch();
           axiosSecure
             .patch(
@@ -125,9 +121,9 @@ const ViewShared = ({
                     <button
                       type="submit"
                       onClick={() => handleEditPermission(item)}
-                      className="text-white bg-orange-400 hover:bg-orange-600 h-8 w-8 rounded-full flex items-center justify-center text-lg"
+                      className="text-white bg-green-400 hover:bg-green-600 h-8 w-8 rounded-full flex items-center justify-center text-lg"
                     >
-                      <FaEdit />
+                      <FaSave />
                     </button>
                   </th>
                 </tr>

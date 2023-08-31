@@ -34,7 +34,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/permitted-contacts",
-        element: <PermittedContacts />,
+        element: (
+          <PrivetRouter>
+            <PermittedContacts />
+          </PrivetRouter>
+        ),
       },
     ],
   },

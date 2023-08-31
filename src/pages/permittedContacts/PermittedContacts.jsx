@@ -3,6 +3,7 @@ import useLoadUserData from "../../hooks/useLoadUserData";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import PermittedUpdateModal from "../../components/PermittedUpdatedModal";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 const PermittedContacts = () => {
   const { refetch, userData } = useLoadUserData();
@@ -14,14 +15,29 @@ const PermittedContacts = () => {
            Deleting contact 
   ========================================*/
   const handleDeleteContact = (id) => {
-    axiosSecure
-      .patch(`/delete-parmitted-contact?email=${userData?.email}&id=${id}`)
-      .then((res) => {
-        if (res.data?.acknowledged) {
-          refetch();
-        }
-      })
-      .catch((error) => console.log(error.message));
+    // asking before deleting contact
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // deleting contact after confirm
+        axiosSecure
+          .patch(`/delete-parmitted-contact?email=${userData?.email}&id=${id}`)
+          .then((res) => {
+            if (res.data?.acknowledged) {
+              refetch();
+            }
+          })
+          .catch((error) => console.log(error.message));
+        Swal.fire("Deleted!", "Your contact has been deleted.", "success");
+      }
+    });
   };
 
   const openModal = (id) => {
