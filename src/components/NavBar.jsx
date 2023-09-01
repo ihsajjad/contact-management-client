@@ -14,7 +14,7 @@ const NavBar = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       const res = await axiosSecure.get(`/all-notifications/${user?.email}`);
-      setNotifications(res.data.notifications);
+      setNotifications(res?.data?.notifications);
       const unRead = res.data?.notifications?.filter(
         (item) => item.read === false
       );

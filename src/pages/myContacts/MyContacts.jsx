@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import useLoadUserData from "../../hooks/useLoadUserData";
 import { FaEdit, FaTimes, FaTrashAlt } from "react-icons/fa";
 import { IoShareSocialSharp } from "react-icons/io5";
@@ -8,8 +8,10 @@ import ViewShared from "../../components/ViewShared";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { SingleToast, WarningToast } from "../../utils/modals";
 import Swal from "sweetalert2";
+import { AuthContext } from "../../providers/AuthProviders";
 // https://www.npmjs.com/package/react-phone-number-input
 const MyContacts = () => {
+  const { loading } = useContext(AuthContext);
   const { refetch, userData } = useLoadUserData();
   const [openUpdateModal, setOpenUpdateModal] = useState(false); // to update contact info
   const [openUsersModal, setOpenUsersModal] = useState(false);
@@ -33,16 +35,18 @@ const MyContacts = () => {
       const users = res.data.filter((data) => data.email !== userData.email);
       setUsers(users);
     };
-    loadUsers();
-  }, [userData.email]);
+    if (!loading) {
+      loadUsers();
+    }
+  }, [userData.email, loading]);
 
   /* ======================================== 
            Adding new contact 
   ========================================*/
-  const handleAddContact = (data) => {
+  const handleAddContact = async (data) => {
     const contact = { ...data, tags: [], permissions: [] };
 
-    axiosSecure
+    await axiosSecure
       .patch(`/add-contact/${userData?.email}`, {
         contact,
       })
@@ -244,7 +248,7 @@ const MyContacts = () => {
           </thead>
 
           <tbody>
-            {userData?.contacts &&
+            {userData?.contacts ? (
               userData.contacts?.map((contact, i) => (
                 <tr key={i} id={`contact-${contact._id}`} className="contact">
                   <th className="">
@@ -296,7 +300,12 @@ const MyContacts = () => {
                     </div>
                   </th>
                 </tr>
-              ))}
+              ))
+            ) : (
+              <tr>
+                <td>Loading...</td>
+              </tr>
+            )}
 
             {/* empty field to add new contact */}
             <tr>

@@ -4,11 +4,11 @@ import { AuthContext } from "./../providers/AuthProviders";
 import useAxiosSecure from "./useAxiosSecure";
 
 const useLoadUserData = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
   const { axiosSecure } = useAxiosSecure();
 
   const { refetch, data: userData = {} } = useQuery({
-    enabled: !!user.email,
+    enabled: !loading,
     queryKey: ["tasks", user?.email],
     queryFn: async () => {
       if (user) {
